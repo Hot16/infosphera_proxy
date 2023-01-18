@@ -6,18 +6,19 @@ import (
 	"os"
 )
 
-type FileData struct {
+type SaveFileData struct {
 	IsRequest  bool
 	FileName   string
 	StringData string
 }
 
-func SaveFile(app config.AppConfig, s FileData) error {
-	filePath, err := getFilePath(app, s)
+func (s *SaveFileData) SaveFile(app *config.AppConfig) error {
+	filePath, err := s.getFilePath(app)
 	if err != nil {
 		return err
 	}
-	file, err := os.Create(fmt.Sprintf("%s%s.xml", filePath, s.FileName))
+	file, err := os.Create(filePath)
+	defer file.Close()
 	if err != nil {
 		return err
 	}
@@ -29,7 +30,7 @@ func SaveFile(app config.AppConfig, s FileData) error {
 	return nil
 }
 
-func getFilePath(app config.AppConfig, s FileData) (string, error) {
+func (s *SaveFileData) getFilePath(app *config.AppConfig) (string, error) {
 	var filePath string
 	pathForRequest := app.Env.GetString("file_save.request_xml")
 	pathForResponse := app.Env.GetString("file_save.response_xml")
@@ -38,6 +39,7 @@ func getFilePath(app config.AppConfig, s FileData) (string, error) {
 	} else {
 		filePath = "." + pathForResponse
 	}
+
 	//создаёт диреторию, если ее нет
 	err := os.MkdirAll(filePath, os.ModePerm)
 	if err != nil {
