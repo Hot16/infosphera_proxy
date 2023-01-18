@@ -41,7 +41,8 @@ func (s *SaveFileData) getFilePath(app *config.AppConfig) (string, error) {
 	}
 
 	//создаёт диреторию, если ее нет
-	err := os.MkdirAll(filePath, os.ModePerm)
+	creatingPath := createDirPath{Path: filePath}
+	err := creatingPath.createDir()
 	if err != nil {
 		return "", err
 	}
