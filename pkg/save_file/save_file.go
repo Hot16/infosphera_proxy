@@ -3,6 +3,7 @@ package save_file
 import (
 	"fmt"
 	"infoSfera_proxy/internal/config"
+	"log"
 	"os"
 )
 
@@ -18,7 +19,12 @@ func (s *SaveFileData) SaveFile(app *config.AppConfig) error {
 		return err
 	}
 	file, err := os.Create(filePath)
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(file)
 	if err != nil {
 		return err
 	}
