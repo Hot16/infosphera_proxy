@@ -16,7 +16,7 @@ func PostRequest(app *config.AppConfig) gin.HandlerFunc {
 		requestJson := reqJ{}
 		if err := c.BindJSON(&requestJson); err == nil {
 			if len(requestJson.Data) == 0 {
-				c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Not valid JSON"})
+				c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Invalid JSON"})
 			} else {
 				for k, v := range requestJson.Data {
 					saveFileData := save_file.SaveFileData{
