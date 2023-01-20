@@ -13,10 +13,10 @@ type SaveFileData struct {
 	StringData string
 }
 
-func (s *SaveFileData) SaveFile(app *config.AppConfig) error {
+func (s *SaveFileData) SaveFile(app *config.AppConfig) {
 	filePath, err := s.getFilePath(app)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	file, err := os.Create(filePath)
 	defer func(file *os.File) {
@@ -26,14 +26,12 @@ func (s *SaveFileData) SaveFile(app *config.AppConfig) error {
 		}
 	}(file)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 	_, err = file.WriteString(s.StringData)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
-
-	return nil
 }
 
 func (s *SaveFileData) getFilePath(app *config.AppConfig) (string, error) {

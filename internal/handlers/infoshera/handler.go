@@ -1,10 +1,12 @@
 package infoshera
 
 import (
-	"github.com/gin-gonic/gin"
 	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/pkg/save_file"
+	"infoSfera_proxy/pkg/save_file/send_request"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type reqJ struct {
@@ -24,10 +26,23 @@ func PostRequest(app *config.AppConfig) gin.HandlerFunc {
 						FileName:   k,
 						StringData: v,
 					}
-					err = saveFileData.SaveFile(app)
-					if err != nil {
-						c.AbortWithError(http.StatusBadRequest, err)
+					
+					go saveFileData.SaveFile(app)
+
+					credentials := send_request.Credentials{
+						BaseUrl: app.Env.GetString("external.weatherapi-weather.baseUrl"),
+						Method:  app.Env.GetString("external.weatherapi-weather.method"),
+						Headers: make(map[string]string),
+						GetParams: make(map[string]string),
 					}
+					for k, v := range app.Env.GetStringMapString("external.weatherapi-weather.headers") {
+						credentials.Headers[k] = v
+					}
+					for k, v := range app.Env.GetStringMapString("external.weatherapi-weather.query_params") {
+						credentials.GetParams[k] = v
+					}
+					credentials.GetParams["q"] = "Podgorica"
+					go credentials.SendRequest()
 				}
 				c.JSON(http.StatusAccepted, gin.H{"status": "success"})
 			}
