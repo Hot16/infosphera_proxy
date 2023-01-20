@@ -3,7 +3,7 @@ package infoshera
 import (
 	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/pkg/save_file"
-	"infoSfera_proxy/pkg/save_file/send_request"
+	"infoSfera_proxy/pkg/send_request"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,13 +26,13 @@ func PostRequest(app *config.AppConfig) gin.HandlerFunc {
 						FileName:   k,
 						StringData: v,
 					}
-					
+
 					go saveFileData.SaveFile(app)
 
 					credentials := send_request.Credentials{
-						BaseUrl: app.Env.GetString("external.weatherapi-weather.baseUrl"),
-						Method:  app.Env.GetString("external.weatherapi-weather.method"),
-						Headers: make(map[string]string),
+						BaseUrl:   app.Env.GetString("external.weatherapi-weather.baseUrl"),
+						Method:    app.Env.GetString("external.weatherapi-weather.method"),
+						Headers:   make(map[string]string),
 						GetParams: make(map[string]string),
 					}
 					for k, v := range app.Env.GetStringMapString("external.weatherapi-weather.headers") {

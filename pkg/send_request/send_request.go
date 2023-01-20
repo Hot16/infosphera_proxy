@@ -24,7 +24,6 @@ func (c *Credentials) SendRequest() {
 	for k, v := range c.GetParams {
 		query_params.Add(k, v)
 	}
-	
 
 	req.URL.RawQuery = query_params.Encode()
 
