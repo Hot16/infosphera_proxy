@@ -5,6 +5,8 @@ import (
 	"infoSfera_proxy/internal/config"
 	"log"
 	"os"
+	"runtime"
+	"time"
 )
 
 type SaveFileData struct {
@@ -13,8 +15,10 @@ type SaveFileData struct {
 	StringData string
 }
 
-func (s *SaveFileData) SaveFile(app *config.AppConfig) {
-	filePath, err := s.getFilePath(app)
+func (s *SaveFileData) SaveFile() {
+	time.Sleep(3 * time.Second)
+	log.Println("Goroutine number: ", runtime.NumGoroutine())
+	filePath, err := s.getFilePath()
 	if err != nil {
 		log.Println(err)
 	}
@@ -34,10 +38,10 @@ func (s *SaveFileData) SaveFile(app *config.AppConfig) {
 	}
 }
 
-func (s *SaveFileData) getFilePath(app *config.AppConfig) (string, error) {
+func (s *SaveFileData) getFilePath() (string, error) {
 	var filePath string
-	pathForRequest := app.Env.GetString("file_save.request_xml")
-	pathForResponse := app.Env.GetString("file_save.response_xml")
+	pathForRequest := config.App.Env.GetString("file_save.request_xml")
+	pathForResponse := config.App.Env.GetString("file_save.response_xml")
 	if s.IsRequest {
 		filePath = "." + pathForRequest
 	} else {

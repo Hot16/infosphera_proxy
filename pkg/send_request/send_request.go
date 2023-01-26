@@ -2,9 +2,12 @@ package send_request
 
 import (
 	"fmt"
+	"infoSfera_proxy/pkg/save_file"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type Credentials struct {
@@ -20,12 +23,12 @@ func (c *Credentials) SendRequest() {
 		log.Println(err)
 	}
 
-	query_params := req.URL.Query()
+	queryParams := req.URL.Query()
 	for k, v := range c.GetParams {
-		query_params.Add(k, v)
+		queryParams.Add(k, v)
 	}
 
-	req.URL.RawQuery = query_params.Encode()
+	req.URL.RawQuery = queryParams.Encode()
 
 	for k, v := range c.Headers {
 		fmt.Println(k + " " + v)
@@ -37,8 +40,18 @@ func (c *Credentials) SendRequest() {
 		log.Println(err)
 	}
 
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(res.Body)
 	body, _ := io.ReadAll(res.Body)
 
-	fmt.Println(string(body))
+	fileData := save_file.SaveFileData{
+		IsRequest:  false,
+		FileName:   "data-" + strconv.FormatInt(time.Now().UnixNano(), 10),
+		StringData: string(body),
+	}
+	go fileData.SaveFile()
 }

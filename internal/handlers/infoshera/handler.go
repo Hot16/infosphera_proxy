@@ -13,7 +13,7 @@ type reqJ struct {
 	Data map[string]string `json:"data"`
 }
 
-func PostRequest(app *config.AppConfig) gin.HandlerFunc {
+func PostRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestJson := reqJ{}
 		if err := c.BindJSON(&requestJson); err == nil {
@@ -27,18 +27,18 @@ func PostRequest(app *config.AppConfig) gin.HandlerFunc {
 						StringData: v,
 					}
 
-					go saveFileData.SaveFile(app)
+					go saveFileData.SaveFile()
 
 					credentials := send_request.Credentials{
-						BaseUrl:   app.Env.GetString("external.weatherapi-weather.baseUrl"),
-						Method:    app.Env.GetString("external.weatherapi-weather.method"),
+						BaseUrl:   config.App.Env.GetString("external.weatherapi-weather.baseUrl"),
+						Method:    config.App.Env.GetString("external.weatherapi-weather.method"),
 						Headers:   make(map[string]string),
 						GetParams: make(map[string]string),
 					}
-					for k, v := range app.Env.GetStringMapString("external.weatherapi-weather.headers") {
+					for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.headers") {
 						credentials.Headers[k] = v
 					}
-					for k, v := range app.Env.GetStringMapString("external.weatherapi-weather.query_params") {
+					for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.query_params") {
 						credentials.GetParams[k] = v
 					}
 					credentials.GetParams["q"] = "Podgorica"

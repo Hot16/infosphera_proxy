@@ -2,12 +2,11 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/internal/handlers"
 	"infoSfera_proxy/internal/handlers/infoshera"
 )
 
-func Route(app *config.AppConfig) *gin.Engine {
+func Route() *gin.Engine {
 	router := gin.Default()
 
 	router.LoadHTMLGlob("./templates/*")
@@ -21,7 +20,7 @@ func Route(app *config.AppConfig) *gin.Engine {
 
 	apiGroup := router.Group("/api")
 	{
-		apiGroup.POST("/req_infoshera", infoshera.PostRequest(app))
+		apiGroup.POST("/req_infoshera", infoshera.PostRequest())
 	}
 	return router
 }
