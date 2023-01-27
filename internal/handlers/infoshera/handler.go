@@ -29,19 +29,28 @@ func PostRequest() gin.HandlerFunc {
 
 					go saveFileData.SaveFile()
 
+					/*					credentials := send_request.Credentials{
+											BaseUrl:   config.App.Env.GetString("external.weatherapi-weather.baseUrl"),
+											Method:    config.App.Env.GetString("external.weatherapi-weather.method"),
+											Headers:   make(map[string]string),
+											GetParams: make(map[string]string),
+										}
+										for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.headers") {
+											credentials.Headers[k] = v
+										}
+										for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.query_params") {
+											credentials.GetParams[k] = v
+										}
+										credentials.GetParams["q"] = "Podgorica"*/
+
+					xmlData := []byte(v)
 					credentials := send_request.Credentials{
-						BaseUrl:   config.App.Env.GetString("external.weatherapi-weather.baseUrl"),
-						Method:    config.App.Env.GetString("external.weatherapi-weather.method"),
-						Headers:   make(map[string]string),
-						GetParams: make(map[string]string),
+						BaseUrl:    config.App.Env.GetString("external.infoshera.baseUrl"),
+						Method:     config.App.Env.GetString("external.infoshera.method"),
+						Headers:    make(map[string]string),
+						GetParams:  make(map[string]string),
+						PostFields: xmlData,
 					}
-					for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.headers") {
-						credentials.Headers[k] = v
-					}
-					for k, v := range config.App.Env.GetStringMapString("external.weatherapi-weather.query_params") {
-						credentials.GetParams[k] = v
-					}
-					credentials.GetParams["q"] = "Podgorica"
 					go credentials.SendRequest()
 				}
 				c.JSON(http.StatusAccepted, gin.H{"status": "success"})

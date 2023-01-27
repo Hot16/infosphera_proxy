@@ -5,7 +5,6 @@ import (
 	"infoSfera_proxy/internal/config"
 	"log"
 	"os"
-	"runtime"
 	"time"
 )
 
@@ -17,7 +16,7 @@ type SaveFileData struct {
 
 func (s *SaveFileData) SaveFile() {
 	time.Sleep(3 * time.Second)
-	log.Println("Goroutine number: ", runtime.NumGoroutine())
+	log.Println("Save ", s.FileName, " start")
 	filePath, err := s.getFilePath()
 	if err != nil {
 		log.Println(err)
@@ -36,6 +35,7 @@ func (s *SaveFileData) SaveFile() {
 	if err != nil {
 		log.Println(err)
 	}
+	log.Println("Save ", s.FileName, " end")
 }
 
 func (s *SaveFileData) getFilePath() (string, error) {

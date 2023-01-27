@@ -1,6 +1,7 @@
 package send_request
 
 import (
+	"bytes"
 	"fmt"
 	"infoSfera_proxy/pkg/save_file"
 	"io"
@@ -11,14 +12,15 @@ import (
 )
 
 type Credentials struct {
-	BaseUrl   string
-	Method    string
-	Headers   map[string]string
-	GetParams map[string]string
+	BaseUrl    string
+	Method     string
+	Headers    map[string]string
+	GetParams  map[string]string
+	PostFields []byte
 }
 
 func (c *Credentials) SendRequest() {
-	req, err := http.NewRequest(c.Method, c.BaseUrl, nil)
+	req, err := http.NewRequest(c.Method, c.BaseUrl, bytes.NewBuffer(c.PostFields))
 	if err != nil {
 		log.Println(err)
 	}
@@ -34,6 +36,8 @@ func (c *Credentials) SendRequest() {
 		fmt.Println(k + " " + v)
 		req.Header.Add(k, v)
 	}
+
+	//req.Body.Read(c.PostFields)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
