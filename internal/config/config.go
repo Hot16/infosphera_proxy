@@ -2,10 +2,12 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"infoSfera_proxy/internal/models"
 )
 
 type AppConfig struct {
-	Env *viper.Viper
+	Env          *viper.Viper
+	SaveFileChan chan models.SaveFileData
 }
 
 var App AppConfig
