@@ -3,7 +3,8 @@ package send_request
 import (
 	"bytes"
 	"fmt"
-	"infoSfera_proxy/pkg/save_file"
+	"infoSfera_proxy/internal/config"
+	"infoSfera_proxy/internal/models"
 	"io"
 	"log"
 	"net/http"
@@ -52,10 +53,10 @@ func (c *Credentials) SendRequest() {
 	}(res.Body)
 	body, _ := io.ReadAll(res.Body)
 
-	fileData := save_file.SaveFileData{
+	fileData := models.SaveFileData{
 		IsRequest:  false,
 		FileName:   "data-" + strconv.FormatInt(time.Now().UnixNano(), 10),
 		StringData: string(body),
 	}
-	go fileData.SaveFile()
+	config.App.SaveFileChan <- fileData
 }

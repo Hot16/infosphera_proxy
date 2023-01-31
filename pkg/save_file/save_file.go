@@ -3,21 +3,25 @@ package save_file
 import (
 	"fmt"
 	"infoSfera_proxy/internal/config"
+	"infoSfera_proxy/internal/models"
 	"log"
 	"os"
 	"time"
 )
 
-type SaveFileData struct {
-	IsRequest  bool
-	FileName   string
-	StringData string
+func ListenToSaveFile() {
+	go func() {
+		for {
+			fileData := <-config.App.SaveFileChan
+			go SaveFile(&fileData)
+		}
+	}()
 }
 
-func (s *SaveFileData) SaveFile() {
+func SaveFile(s *models.SaveFileData) {
+	log.Println("Save file: ", s.FileName, " start")
 	time.Sleep(3 * time.Second)
-	log.Println("Save ", s.FileName, " start")
-	filePath, err := s.getFilePath()
+	filePath, err := getFilePath(s)
 	if err != nil {
 		log.Println(err)
 	}
@@ -35,10 +39,10 @@ func (s *SaveFileData) SaveFile() {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Save ", s.FileName, " end")
+	log.Println("Save file: ", s.FileName, " end")
 }
 
-func (s *SaveFileData) getFilePath() (string, error) {
+func getFilePath(s *models.SaveFileData) (string, error) {
 	var filePath string
 	pathForRequest := config.App.Env.GetString("file_save.request_xml")
 	pathForResponse := config.App.Env.GetString("file_save.response_xml")
