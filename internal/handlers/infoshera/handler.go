@@ -3,7 +3,6 @@ package infoshera
 import (
 	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/internal/models"
-	"infoSfera_proxy/pkg/send_request"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,13 +22,15 @@ func PostRequest() gin.HandlerFunc {
 				for k, v := range requestJson.Data {
 					go func(k string, v string) {
 						saveFileData := models.SaveFileData{
+							Id:         k,
 							IsRequest:  true,
 							FileName:   k,
 							StringData: v,
 						}
 						config.App.SaveFileChan <- saveFileData
 
-						credentials := send_request.Credentials{
+						credentials := models.Credentials{
+							Id:        k,
 							BaseUrl:   config.App.Env.GetString("external.weatherapi-weather.baseUrl"),
 							Method:    config.App.Env.GetString("external.weatherapi-weather.method"),
 							Headers:   make(map[string]string),
@@ -42,7 +43,7 @@ func PostRequest() gin.HandlerFunc {
 							credentials.GetParams[k] = v
 						}
 						credentials.GetParams["q"] = "Podgorica"
-						go credentials.SendRequest()
+						config.App.SendRequest <- credentials
 					}(k, v)
 				}
 				c.JSON(http.StatusAccepted, gin.H{"status": "success"})

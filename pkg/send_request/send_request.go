@@ -7,18 +7,18 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 )
 
-type Credentials struct {
-	BaseUrl   string
-	Method    string
-	Headers   map[string]string
-	GetParams map[string]string
+func ListenerSendRequest() {
+	go func() {
+		for {
+			cred := <-config.App.SendRequest
+			go sendRequest(&cred)
+		}
+	}()
 }
 
-func (c *Credentials) SendRequest() {
+func sendRequest(c *models.Credentials) {
 	req, err := http.NewRequest(c.Method, c.BaseUrl, nil)
 	if err != nil {
 		log.Println(err)
@@ -50,8 +50,9 @@ func (c *Credentials) SendRequest() {
 	body, _ := io.ReadAll(res.Body)
 
 	fileData := models.SaveFileData{
+		Id:         c.Id,
 		IsRequest:  false,
-		FileName:   "data-" + strconv.FormatInt(time.Now().UnixNano(), 10),
+		FileName:   c.Id,
 		StringData: string(body),
 	}
 	config.App.SaveFileChan <- fileData

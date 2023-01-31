@@ -6,21 +6,19 @@ import (
 	"infoSfera_proxy/internal/models"
 	"log"
 	"os"
-	"time"
 )
 
 func ListenToSaveFile() {
 	go func() {
 		for {
 			fileData := <-config.App.SaveFileChan
-			go SaveFile(&fileData)
+			go saveFile(&fileData)
 		}
 	}()
 }
 
-func SaveFile(s *models.SaveFileData) {
+func saveFile(s *models.SaveFileData) {
 	log.Println("Save file: ", s.FileName, " start")
-	time.Sleep(3 * time.Second)
 	filePath, err := getFilePath(s)
 	if err != nil {
 		log.Println(err)

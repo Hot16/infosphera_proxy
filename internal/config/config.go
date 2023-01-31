@@ -8,6 +8,7 @@ import (
 type AppConfig struct {
 	Env          *viper.Viper
 	SaveFileChan chan models.SaveFileData
+	SendRequest  chan models.Credentials
 }
 
 var App AppConfig
