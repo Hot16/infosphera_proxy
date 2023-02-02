@@ -13,21 +13,12 @@ import (
 )
 
 func main() {
-	err := config.GetEnv()
+	err := run()
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
-
-	saveFineChan := make(chan models.SaveFileData)
-	config.App.SaveFileChan = saveFineChan
-
 	defer close(config.App.SaveFileChan)
-
-	sendRequestChan := make(chan models.Credentials)
-	config.App.SendRequest = sendRequestChan
-
-	save_file.ListenToSaveFile()
-	send_request.ListenerSendRequest()
+	defer close(config.App.SendRequest)
 
 	port := fmt.Sprintf(":%s", config.App.Env.GetString("server.port"))
 	server := http.Server{
@@ -42,4 +33,22 @@ func main() {
 	if err != nil {
 		return
 	}
+}
+
+func run() error {
+	err := config.GetEnv()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	saveFineChan := make(chan models.SaveFileData)
+	config.App.SaveFileChan = saveFineChan
+
+	sendRequestChan := make(chan models.Credentials)
+	config.App.SendRequest = sendRequestChan
+
+	save_file.ListenToSaveFile()
+	send_request.ListenerSendRequest()
+	return nil
 }
