@@ -6,6 +6,7 @@ import (
 	"infoSfera_proxy/internal/models"
 	"infoSfera_proxy/internal/routes"
 	"infoSfera_proxy/pkg/save_file"
+	"infoSfera_proxy/pkg/send_request"
 	"log"
 	"net/http"
 	"time"
@@ -22,7 +23,11 @@ func main() {
 
 	defer close(config.App.SaveFileChan)
 
+	sendRequestChan := make(chan models.Credentials)
+	config.App.SendRequest = sendRequestChan
+
 	save_file.ListenToSaveFile()
+	send_request.ListenerSendRequest()
 
 	port := fmt.Sprintf(":%s", config.App.Env.GetString("server.port"))
 	server := http.Server{

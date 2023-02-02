@@ -7,18 +7,35 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 )
 
-type Credentials struct {
-	BaseUrl   string
-	Method    string
-	Headers   map[string]string
-	GetParams map[string]string
+func ListenerSendRequest() {
+	go func() {
+		for {
+			cred := <-config.App.SendRequest
+			go sendRequest(&cred)
+		}
+	}()
 }
 
-func (c *Credentials) SendRequest() {
+func NewCred(id string) models.Credentials {
+
+	cred := models.Credentials{
+		BaseUrl:   config.App.Env.GetString(fmt.Sprintf("external.%s.baseUrl", id)),
+		Method:    config.App.Env.GetString(fmt.Sprintf("external.%s.method", id)),
+		Headers:   make(map[string]string),
+		GetParams: make(map[string]string),
+	}
+	for k, v := range config.App.Env.GetStringMapString(fmt.Sprintf("external.%s.headers", id)) {
+		cred.Headers[k] = v
+	}
+	for k, v := range config.App.Env.GetStringMapString(fmt.Sprintf("external.%s.query_params", id)) {
+		cred.GetParams[k] = v
+	}
+	return cred
+}
+
+func sendRequest(c *models.Credentials) {
 	req, err := http.NewRequest(c.Method, c.BaseUrl, nil)
 	if err != nil {
 		log.Println(err)
@@ -50,8 +67,9 @@ func (c *Credentials) SendRequest() {
 	body, _ := io.ReadAll(res.Body)
 
 	fileData := models.SaveFileData{
+		Id:         c.Id,
 		IsRequest:  false,
-		FileName:   "data-" + strconv.FormatInt(time.Now().UnixNano(), 10),
+		FileName:   c.Id,
 		StringData: string(body),
 	}
 	config.App.SaveFileChan <- fileData
