@@ -28,9 +28,9 @@ func PostRequest() gin.HandlerFunc {
 						}
 						config.App.SaveFileChan <- saveFileData
 
-						cred := send_request.NewCred("weatherapi-weather")
+						cred := send_request.NewCred("infoshera")
 						cred.Id = k
-						cred.GetParams["q"] = "Podgorica"
+						cred.PostFields = []byte(v)
 
 						config.App.SendRequest <- cred
 					}(k, v)

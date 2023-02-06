@@ -1,6 +1,7 @@
 package send_request
 
 import (
+	"bytes"
 	"fmt"
 	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/internal/models"
@@ -36,7 +37,7 @@ func NewCred(id string) models.Credentials {
 }
 
 func sendRequest(c *models.Credentials) {
-	req, err := http.NewRequest(c.Method, c.BaseUrl, nil)
+	req, err := http.NewRequest(c.Method, c.BaseUrl, bytes.NewReader(c.PostFields))
 	if err != nil {
 		log.Println(err)
 	}
@@ -73,4 +74,10 @@ func sendRequest(c *models.Credentials) {
 		StringData: string(body),
 	}
 	config.App.SaveFileChan <- fileData
+
+	cred := NewCred("vzaimno")
+	cred.Id = c.Id
+	cred.GetParams["id_request"] = c.Id
+	c.PostFields = []byte(string(body))
+	config.App.SendRequest <- cred
 }

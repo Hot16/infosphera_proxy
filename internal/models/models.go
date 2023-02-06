@@ -8,9 +8,10 @@ type SaveFileData struct {
 }
 
 type Credentials struct {
-	Id        string
-	BaseUrl   string
-	Method    string
-	Headers   map[string]string
-	GetParams map[string]string
+	Id         string
+	BaseUrl    string
+	Method     string
+	Headers    map[string]string
+	GetParams  map[string]string
+	PostFields []byte
 }
