@@ -15,3 +15,8 @@ type Credentials struct {
 	GetParams  map[string]string
 	PostFields []byte
 }
+
+type Response struct {
+	Id   string
+	Data string
+}

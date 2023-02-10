@@ -1,44 +1,38 @@
 package infoshera
 
 import (
-	"github.com/gin-gonic/gin"
 	"infoSfera_proxy/internal/config"
 	"infoSfera_proxy/internal/models"
 	"infoSfera_proxy/pkg/send_request"
-	"net/http"
+	"log"
 )
 
-type reqJ struct {
-	Data map[string]string `json:"data"`
+func InfoSpheraRequest(id string, data string) {
+	cred := send_request.NewCred("infoshera")
+	cred.Id = id
+	cred.PostFields = []byte(data)
+
+	response, err := send_request.SendRequest(&cred)
+	if err != nil {
+		log.Println(err)
+	}
+	infoSpheraRsponse(&response)
+
 }
 
-func PostRequest() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		requestJson := reqJ{}
-		if err := c.BindJSON(&requestJson); err == nil {
-			if len(requestJson.Data) == 0 {
-				c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Invalid JSON"})
-			} else {
-				for k, v := range requestJson.Data {
-					go func(k string, v string) {
-						saveFileData := models.SaveFileData{
-							IsRequest:  true,
-							FileName:   k,
-							StringData: v,
-						}
-						config.App.SaveFileChan <- saveFileData
-
-						cred := send_request.NewCred("infoshera")
-						cred.Id = k
-						cred.PostFields = []byte(v)
-
-						config.App.SendRequest <- cred
-					}(k, v)
-				}
-				c.JSON(http.StatusAccepted, gin.H{"status": "success"})
-			}
-		} else {
-			c.AbortWithError(http.StatusBadRequest, err)
-		}
+func infoSpheraRsponse(r *models.Response) {
+	saveFile := models.SaveFileData{
+		Id:         r.Id,
+		IsRequest:  false,
+		FileName:   r.Id,
+		StringData: r.Data,
 	}
+	config.App.SaveFileChan <- saveFile
+
+	cred := send_request.NewCred("vzaimno")
+	cred.Id = r.Id
+	cred.GetParams["id_request"] = r.Id
+	cred.PostFields = []byte(r.Data)
+
+	_, _ = send_request.SendRequest(&cred)
 }

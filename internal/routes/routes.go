@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"infoSfera_proxy/internal/handlers"
-	"infoSfera_proxy/internal/handlers/infoshera"
 )
 
 func Route() *gin.Engine {
@@ -20,7 +19,7 @@ func Route() *gin.Engine {
 
 	apiGroup := router.Group("/api")
 	{
-		apiGroup.POST("/req_infoshera", infoshera.PostRequest())
+		apiGroup.POST("/req_infosphera", handlers.PostRequest())
 	}
 	return router
 }

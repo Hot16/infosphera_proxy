@@ -6,7 +6,6 @@ import (
 	"infoSfera_proxy/internal/models"
 	"infoSfera_proxy/internal/routes"
 	"infoSfera_proxy/pkg/save_file"
-	"infoSfera_proxy/pkg/send_request"
 	"log"
 	"net/http"
 	"time"
@@ -49,6 +48,6 @@ func run() error {
 	config.App.SendRequest = sendRequestChan
 
 	save_file.ListenToSaveFile()
-	send_request.ListenerSendRequest()
+
 	return nil
 }

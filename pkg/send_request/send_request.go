@@ -10,15 +10,6 @@ import (
 	"net/http"
 )
 
-func ListenerSendRequest() {
-	go func() {
-		for {
-			cred := <-config.App.SendRequest
-			go sendRequest(&cred)
-		}
-	}()
-}
-
 func NewCred(id string) models.Credentials {
 
 	cred := models.Credentials{
@@ -36,10 +27,10 @@ func NewCred(id string) models.Credentials {
 	return cred
 }
 
-func sendRequest(c *models.Credentials) {
+func SendRequest(c *models.Credentials) (models.Response, error) {
 	req, err := http.NewRequest(c.Method, c.BaseUrl, bytes.NewReader(c.PostFields))
 	if err != nil {
-		log.Println(err)
+		return models.Response{}, err
 	}
 
 	queryParams := req.URL.Query()
@@ -56,7 +47,7 @@ func sendRequest(c *models.Credentials) {
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Println(err)
+		return models.Response{}, err
 	}
 
 	defer func(Body io.ReadCloser) {
@@ -75,9 +66,10 @@ func sendRequest(c *models.Credentials) {
 	}
 	config.App.SaveFileChan <- fileData
 
-	cred := NewCred("vzaimno")
-	cred.Id = c.Id
-	cred.GetParams["id_request"] = c.Id
-	c.PostFields = []byte(string(body))
-	config.App.SendRequest <- cred
+	response := models.Response{
+		Id:   c.Id,
+		Data: string(body),
+	}
+
+	return response, nil
 }
