@@ -19,6 +19,7 @@ func Route() *gin.Engine {
 
 	apiGroup := router.Group("/api")
 	{
+		apiGroup.GET("/req_infosphera", handlers.GetApiReq())
 		apiGroup.POST("/req_infosphera", handlers.PostRequest())
 	}
 	return router

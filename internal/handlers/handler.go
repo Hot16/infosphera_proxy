@@ -12,6 +12,12 @@ type reqJ struct {
 	Data map[string]string `json:"data"`
 }
 
+func GetApiReq() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	}
+}
+
 func PostRequest() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestJson := reqJ{}

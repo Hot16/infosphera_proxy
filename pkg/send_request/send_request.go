@@ -57,15 +57,6 @@ func SendRequest(c *models.Credentials) (models.Response, error) {
 		}
 	}(res.Body)
 	body, _ := io.ReadAll(res.Body)
-
-	fileData := models.SaveFileData{
-		Id:         c.Id,
-		IsRequest:  false,
-		FileName:   c.Id,
-		StringData: string(body),
-	}
-	config.App.SaveFileChan <- fileData
-
 	response := models.Response{
 		Id:   c.Id,
 		Data: string(body),
